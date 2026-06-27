@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}New CAPA - IntelliMOST{% endblock %}
+{% block breadcrumb %}CAPA / New{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">New CAPA</h4>
+<div class="kpi-card"><form method="post">
+  {{ form.hidden_tag() }}
+  <div class="row g-3">
+    <div class="col-md-8">{{ form.title.label(class="form-label") }}{{ form.title(class="form-control") }}
+      {% for e in form.title.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+    <div class="col-md-2">{{ form.severity.label(class="form-label") }}{{ form.severity(class="form-select") }}</div>
+    <div class="col-md-2">{{ form.priority.label(class="form-label") }}{{ form.priority(class="form-select") }}</div>
+    <div class="col-md-4">{{ form.source_type.label(class="form-label") }}{{ form.source_type(class="form-select") }}</div>
+    <div class="col-md-8">{{ form.source_description.label(class="form-label") }}{{ form.source_description(class="form-control") }}</div>
+    <div class="col-md-4">{{ form.affected_machine_id.label(class="form-label") }}{{ form.affected_machine_id(class="form-select") }}</div>
+    <div class="col-md-4">{{ form.affected_sku_id.label(class="form-label") }}{{ form.affected_sku_id(class="form-select") }}</div>
+    <div class="col-md-4">{{ form.affected_batch.label(class="form-label") }}{{ form.affected_batch(class="form-control") }}</div>
+    <div class="col-12">{{ form.deviation_description.label(class="form-label") }}{{ form.deviation_description(class="form-control", rows=3) }}
+      {% for e in form.deviation_description.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+    <div class="col-12">{{ form.immediate_action.label(class="form-label") }}{{ form.immediate_action(class="form-control", rows=2) }}</div>
+    <div class="col-md-4">{{ form.owner_id.label(class="form-label") }}{{ form.owner_id(class="form-select") }}</div>
+    <div class="col-md-4">{{ form.reviewer_id.label(class="form-label") }}{{ form.reviewer_id(class="form-select") }}</div>
+    <div class="col-md-4">{{ form.due_date.label(class="form-label") }}{{ form.due_date(class="form-control") }}
+      {% for e in form.due_date.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+  </div>
+  {{ form.submit(class="btn btn-teal mt-3") }}
+</form></div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}RCA - {{ capa.capa_number }}{% endblock %}
+{% block breadcrumb %}CAPA / {{ capa.capa_number }} / RCA{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-1">Root Cause Analysis</h4>
+<p class="text-muted small">{{ capa.capa_number }} - {{ capa.title }}</p>
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="kpi-card"><form method="post" id="rcaForm">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">{{ form.problem_statement.label(class="form-label fw-bold") }}{{ form.problem_statement(class="form-control", rows=2) }}</div>
+      {% for f in [form.why_1, form.why_2, form.why_3, form.why_4, form.why_5] %}
+        <div class="mb-2">{{ f.label(class="form-label") }}{{ f(class="form-control") }}</div>
+      {% endfor %}
+      <div class="mb-3">{{ form.root_cause_statement.label(class="form-label fw-bold") }}{{ form.root_cause_statement(class="form-control", rows=2) }}</div>
+      <label class="form-label fw-bold">Root Cause Category (6M)</label>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        {% for val,lab in [('man','Man'),('machine','Machine'),('method','Method'),('material','Material'),('measurement','Measurement'),('environment','Environment')] %}
+          <button type="button" class="btn btn-sm btn-outline-secondary cat-btn" data-val="{{ val }}">{{ lab }}</button>
+        {% endfor %}
+      </div>
+      {{ form.root_cause_category(class="d-none", id="catField") }}
+      {{ form.submit(class="btn btn-teal") }}
+      <a href="{{ url_for('capa.detail', id=capa.id) }}" class="btn btn-outline-secondary">Back to CAPA</a>
+    </form></div>
+  </div>
+  <div class="col-lg-4">
+    <div class="kpi-card"><h6 class="fw-bold">Similar Past Events</h6>
+      <button type="button" class="btn btn-sm btn-outline-primary mb-2" id="loadSimilar">Find Similar Events</button>
+      <div id="similarList" class="small"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var cur=document.getElementById('catField').value;
+  document.querySelectorAll('.cat-btn').forEach(function(b){
+    if(b.getAttribute('data-val')===cur)b.classList.add('btn-teal');
+    b.addEventListener('click',function(){
+      document.querySelectorAll('.cat-btn').forEach(function(x){x.classList.remove('btn-teal');});
+      b.classList.add('btn-teal');
+      document.getElementById('catField').value=b.getAttribute('data-val');
+    });
+  });
+  document.getElementById('loadSimilar').addEventListener('click',function(){
+    var ps=document.querySelector('[name="problem_statement"]').value;
+    apiFetch('/api/rca/similar-events',{method:'POST',body:JSON.stringify({deviation_description:ps})})
+      .then(function(r){return r.json();}).then(function(d){
+        var box=document.getElementById('similarList');box.innerHTML='';
+        if(!d.results.length){box.innerHTML='<p class="text-muted">No similar events found.</p>';return;}
+        d.results.forEach(function(x){
+          box.innerHTML+='<div class="border rounded p-2 mb-2"><strong>'+x.capa_number+'</strong><br>'+x.title+'<br><span class="text-muted">'+(x.root_cause_statement||'')+'</span></div>';
+        });
+      });
+  });
+});
+</script>
+{% endblock %}

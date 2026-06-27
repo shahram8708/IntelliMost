@@ -1,0 +1,39 @@
+{% extends 'base_public.html' %}
+{% block title %}Sign In - IntelliMOST{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <h3 class="mb-1 fw-bold" style="color:var(--color-navy)">Welcome back</h3>
+          <p class="text-muted small mb-4">Sign in to your IntelliMOST account.</p>
+          <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+              {{ form.email.label(class="form-label") }}
+              {{ form.email(class="form-control", placeholder="you@company.com") }}
+              {% for e in form.email.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="mb-3">
+              {{ form.password.label(class="form-label") }}
+              {{ form.password(class="form-control") }}
+              {% for e in form.password.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="form-check">{{ form.remember_me(class="form-check-input") }}{{ form.remember_me.label(class="form-check-label small") }}</div>
+              <a href="{{ url_for('auth.forgot_password') }}" class="small">Forgot password?</a>
+            </div>
+            {{ form.submit(class="btn btn-teal w-100") }}
+          </form>
+          <div class="mt-4 small text-muted">
+            <strong>Demo accounts:</strong><br>
+            superadmin@intellimost.io / SuperAdmin@123<br>
+            admin@pharmaco.com / Admin@123 · engineer@pharmaco.com / Engineer@123
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Lines{% endblock %}
+{% block breadcrumb %}Admin / Lines{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">Production Lines</h4>
+<div class="row g-3">
+  <div class="col-lg-7"><div class="kpi-card"><div class="table-responsive-wrap"><table class="table table-sm align-middle">
+    <thead><tr><th>Name</th><th>Code</th><th>Target</th><th></th></tr></thead>
+    <tbody>{% for l in lines %}<tr><td>{{ l.line_name }}</td><td>{{ l.line_code or '-' }}</td><td>{{ l.target_output_per_shift }}</td>
+      <td><a href="{{ url_for('admin.edit_line', id=l.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a></td></tr>{% endfor %}</tbody>
+  </table></div></div></div>
+  <div class="col-lg-5"><div class="kpi-card"><h6 class="fw-bold mb-2">Add Line</h6><form method="post">
+    {{ form.hidden_tag() }}
+    <div class="mb-2">{{ form.line_name.label(class="form-label") }}{{ form.line_name(class="form-control") }}</div>
+    <div class="mb-2">{{ form.line_code.label(class="form-label") }}{{ form.line_code(class="form-control") }}</div>
+    <div class="mb-2">{{ form.target_output_per_shift.label(class="form-label") }}{{ form.target_output_per_shift(class="form-control") }}</div>
+    <div class="row"><div class="col-6 mb-2">{{ form.shift_duration_hours.label(class="form-label") }}{{ form.shift_duration_hours(class="form-control") }}</div>
+      <div class="col-6 mb-2">{{ form.planned_break_minutes.label(class="form-label") }}{{ form.planned_break_minutes(class="form-control") }}</div></div>
+    {{ form.submit(class="btn btn-teal") }}
+  </form></div></div>
+</div>
+{% endblock %}

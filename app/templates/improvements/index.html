@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Improvements - IntelliMOST{% endblock %}
+{% block breadcrumb %}Improvements{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">Improvement Opportunities</h4>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-3"><select name="status" class="form-select form-select-sm"><option value="">All statuses</option>
+    {% for s in ['new','accepted','deferred','dismissed'] %}<option value="{{ s }}" {{ 'selected' if filters.status==s }}>{{ s }}</option>{% endfor %}</select></div>
+  <div class="col-md-2"><button class="btn btn-sm btn-outline-secondary">Filter</button></div>
+</form>
+<div class="row g-3">
+  {% for o in opportunities %}
+  <div class="col-md-6"><div class="kpi-card h-100">
+    <div class="d-flex justify-content-between align-items-start">
+      <h6 class="fw-bold">{{ o.opportunity_title }}</h6>
+      <span class="badge bg-info">{{ o.category }}</span>
+    </div>
+    <p class="small text-muted">{{ o.opportunity_description }}</p>
+    {% if o.impact_minutes_per_shift %}<div class="small mb-2"><strong>Impact:</strong> {{ o.impact_minutes_per_shift }} min/shift</div>{% endif %}
+    {% if o.evidence_summary %}<div class="small text-muted mb-2"><i class="fa-solid fa-chart-simple me-1"></i>{{ o.evidence_summary }}</div>{% endif %}
+    <span class="badge bg-secondary mb-2">{{ o.status }}</span>
+    {% if o.status in ['new','deferred'] %}
+    <div class="d-flex gap-2 mt-2">
+      <form method="post" action="{{ url_for('improvements.accept', id=o.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-teal">Accept</button></form>
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#defer{{ o.id }}">Defer</button>
+      <button class="btn btn-sm btn-outline-danger" data-bs-toggle="collapse" data-bs-target="#dismiss{{ o.id }}">Dismiss</button>
+    </div>
+    <div class="collapse mt-2" id="defer{{ o.id }}"><form method="post" action="{{ url_for('improvements.defer', id=o.id) }}" class="d-flex gap-2">
+      {{ defer_form.hidden_tag() }}{{ defer_form.deferred_until(class="form-control form-control-sm") }}<button class="btn btn-sm btn-outline-secondary">Save</button></form></div>
+    <div class="collapse mt-2" id="dismiss{{ o.id }}"><form method="post" action="{{ url_for('improvements.dismiss', id=o.id) }}" class="d-flex gap-2">
+      {{ dismiss_form.hidden_tag() }}{{ dismiss_form.dismissed_reason(class="form-control form-control-sm", placeholder="Reason") }}<button class="btn btn-sm btn-outline-danger">Dismiss</button></form></div>
+    {% endif %}
+  </div></div>
+  {% else %}<div class="col-12"><div class="empty-state"><i class="fa-solid fa-lightbulb fa-2x mb-2"></i><p>No opportunities yet. They are generated automatically as data accumulates.</p></div></div>{% endfor %}
+</div>
+{% endblock %}

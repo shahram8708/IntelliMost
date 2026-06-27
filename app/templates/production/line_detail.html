@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}{{ line.line_name }} - IntelliMOST{% endblock %}
+{% block breadcrumb %}Production / {{ line.line_name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">{{ line.line_name }}</h4>
+  <span class="badge {{ 'badge-running' if shift else 'badge-idle' }}">{{ 'Running' if shift else 'Idle' }}</span>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="kpi-card"><div class="kpi-label">Output Today</div><div class="kpi-value">{{ shift.actual_units if shift else 0 }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="kpi-card"><div class="kpi-label">Target</div><div class="kpi-value">{{ shift.target_units if shift else line.target_output_per_shift }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="kpi-card"><div class="kpi-label">OEE</div><div class="kpi-value">{{ oee.oee_percent if oee else 0 }}%</div></div></div>
+  <div class="col-6 col-lg-3"><div class="kpi-card"><div class="kpi-label">Rejection Rate</div><div class="kpi-value">{{ '%.2f'|format((shift.rejection_count / shift.actual_units * 100) if shift and shift.actual_units else 0) }}%</div></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-7"><div class="kpi-card"><h6 class="fw-bold mb-3">Output Trend (last 7 shifts)</h6>
+    <div style="height:260px"><canvas id="outChart" data-chart="outData" data-type="bar"></canvas></div>
+    <script type="application/json" id="outData">{"labels":{{ chart.labels|tojson }},"datasets":[{"label":"Actual","data":{{ chart.actual|tojson }},"backgroundColor":"#0D9488"},{"label":"Target","data":{{ chart.target|tojson }},"backgroundColor":"#cbd5e1"}]}</script>
+  </div></div>
+  <div class="col-lg-5"><div class="kpi-card"><h6 class="fw-bold mb-3">Active Downtime</h6>
+    {% for d in active_dt %}<div class="border-bottom py-1 small"><strong>{{ d.machine.machine_name }}</strong> · {{ d.event_type }} · {{ d.duration_minutes|format_duration if d.duration_minutes else 'ongoing' }}</div>{% else %}<p class="text-muted small">No downtime this shift.</p>{% endfor %}
+  </div></div>
+</div>
+<div class="row g-3 mt-1">
+  <div class="col-lg-6"><div class="kpi-card"><h6 class="fw-bold mb-3">Linked MOST Studies</h6>
+    <div class="table-responsive-wrap"><table class="table table-sm"><thead><tr><th>Study</th><th>Std Time</th><th>Status</th></tr></thead>
+    <tbody>{% for s in studies %}<tr><td><a href="{{ url_for('work_study.detail', id=s.id) }}">{{ s.study_name }}</a></td><td>{{ '%.1f'|format(s.allowed_time_sec or 0) }}s</td><td><span class="badge bg-secondary">{{ s.status }}</span></td></tr>{% else %}<tr><td colspan="3" class="text-muted">No published studies.</td></tr>{% endfor %}</tbody></table></div>
+  </div></div>
+  <div class="col-lg-6"><div class="kpi-card"><h6 class="fw-bold mb-3">Rejection Events</h6>
+    <div class="table-responsive-wrap"><table class="table table-sm"><thead><tr><th>Defect</th><th>Qty</th></tr></thead>
+    <tbody>{% for r in rejections %}<tr><td>{{ r.defect_type }}</td><td>{{ r.quantity_rejected }}</td></tr>{% else %}<tr><td colspan="2" class="text-muted">None.</td></tr>{% endfor %}</tbody></table></div>
+  </div></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>{% endblock %}

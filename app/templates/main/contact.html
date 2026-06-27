@@ -1,0 +1,17 @@
+{% extends 'base_public.html' %}
+{% block content %}
+<div class="container py-5"><div class="row justify-content-center"><div class="col-md-6">
+  <h1 class="fw-bold mb-4" style="color:var(--color-navy)">Contact us</h1>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.name.label(class="form-label") }}{{ form.name(class="form-control") }}
+      {% for e in form.name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+    <div class="mb-3">{{ form.email.label(class="form-label") }}{{ form.email(class="form-control") }}
+      {% for e in form.email.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+    <div class="mb-3">{{ form.company.label(class="form-label") }}{{ form.company(class="form-control") }}</div>
+    <div class="mb-3">{{ form.message.label(class="form-label") }}{{ form.message(class="form-control", rows=4) }}
+      {% for e in form.message.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+    {{ form.submit(class="btn btn-teal") }}
+  </form>
+</div></div></div>
+{% endblock %}

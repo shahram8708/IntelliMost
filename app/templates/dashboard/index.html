@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - IntelliMOST{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+{% macro kpi(label, value, id=None, suffix='') %}
+<div class="col-6 col-lg-3"><div class="kpi-card">
+  <div class="kpi-label">{{ label }}</div>
+  <div class="kpi-value"{% if id %} id="{{ id }}"{% endif %}>{{ value }}{{ suffix }}</div>
+</div></div>
+{% endmacro %}
+{% block content %}
+<h4 class="fw-bold mb-4">Welcome, {{ current_user.full_name }}</h4>
+
+{% if role in ['super_admin'] or (role=='admin' and plant_count is defined and plant_count) %}
+  <div class="row g-3 mb-4">
+    {{ kpi('Active Plants', plant_count) }}
+    {{ kpi('Users', user_count) }}
+    {{ kpi('Published Studies', study_count) }}
+    {{ kpi('Open CAPAs', open_capas) }}
+  </div>
+  <div class="row g-3">
+    <div class="col-lg-7"><div class="kpi-card">
+      <h6 class="fw-bold mb-3">Plants Overview</h6>
+      <div class="table-responsive-wrap"><table class="table table-sm">
+        <thead><tr><th>Plant</th><th>Tier</th><th>Status</th></tr></thead>
+        <tbody>{% for p in plants %}<tr><td>{{ p.name }}</td><td>{{ p.subscription_tier }}</td>
+          <td><span class="badge {{ 'bg-success' if p.subscription_active else 'bg-secondary' }}">{{ 'Active' if p.subscription_active else 'Inactive' }}</span></td></tr>{% endfor %}</tbody>
+      </table></div>
+    </div></div>
+    <div class="col-lg-5"><div class="kpi-card">
+      <h6 class="fw-bold mb-3">Recent Activity</h6>
+      <ul class="list-unstyled small mb-0">
+        {% for a in recent_audit %}<li class="border-bottom py-1"><strong>{{ a.action }}</strong> · {{ a.created_at|format_datetime('%d %b %H:%M') }}</li>{% endfor %}
+      </ul>
+    </div></div>
+  </div>
+
+{% elif role in ['plant_manager','admin'] %}
+  <div class="row g-3 mb-4">
+    {{ kpi('OEE', avg_oee, 'kpi-oee', '%') }}
+    {{ kpi('Attainment', attainment, 'kpi-attainment', '%') }}
+    {{ kpi('Active Downtime', active_dt, 'kpi-downtime') }}
+    {{ kpi('Open Alerts', active_alerts, 'kpi-alerts') }}
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8"><div class="kpi-card">
+      <h6 class="fw-bold mb-3">Lines Status</h6>
+      <div class="row g-3">
+        {% for line in lines %}
+        {% set s = active_shifts.get(line.id) %}
+        <div class="col-md-6"><div class="line-tile {{ 'running' if s else 'idle' }}">
+          <div class="d-flex justify-content-between"><strong>{{ line.line_name }}</strong>
+            <span class="badge {{ 'badge-running' if s else 'badge-idle' }}">{{ 'Running' if s else 'Idle' }}</span></div>
+          {% if s %}<div class="small text-muted mt-1">{{ s.actual_units }} / {{ s.target_units }} units · OEE {{ s.oee_percent or 0 }}%</div>{% endif %}
+          <a href="{{ url_for('production.line_detail', id=line.id) }}" class="small">View line →</a>
+        </div></div>
+        {% endfor %}
+      </div>
+    </div></div>
+    <div class="col-lg-4"><div class="kpi-card">
+      <h6 class="fw-bold mb-3">Top Downtime Reasons (7d)</h6>
+      {% for r in top_reasons %}<div class="d-flex justify-content-between small border-bottom py-1"><span>{{ r.label }}</span><strong>{{ r.minutes }} min</strong></div>{% else %}<p class="text-muted small">No downtime recorded.</p>{% endfor %}
+      <div class="mt-3"><span class="kpi-label">Open CAPAs</span><div class="fs-4 fw-bold">{{ open_capas }}</div></div>
+    </div></div>
+  </div>
+
+{% elif role=='industrial_engineer' %}
+  <div class="row g-3 mb-4">
+    {{ kpi('Published Studies', published_count) }}
+    {{ kpi('Workstations to Update', overdue_ws|length) }}
+    {{ kpi('Pending AI Reviews', pending_ai) }}
+    {{ kpi('Recent Studies', studies|length) }}
+  </div>
+  <div class="row g-3">
+    <div class="col-lg-7"><div class="kpi-card">
+      <h6 class="fw-bold mb-3">Recent Studies</h6>
+      <div class="table-responsive-wrap"><table class="table table-sm">
+        <thead><tr><th>Study</th><th>Status</th><th>Std Time</th></tr></thead>
+        <tbody>{% for s in studies %}<tr><td><a href="{{ url_for('work_study.detail', id=s.id) }}">{{ s.study_name }}</a></td>
+          <td><span class="badge bg-secondary">{{ s.status }}</span></td><td>{{ '%.1f'|format(s.allowed_time_sec or 0) }}s</td></tr>{% endfor %}</tbody>
+      </table></div>
+      <a href="{{ url_for('work_study.new_study') }}" class="btn btn-teal btn-sm">New Study</a>
+    </div></div>
+    <div class="col-lg-5"><div class="kpi-card">
+      <h6 class="fw-bold mb-3">Workstations Needing Study</h6>
+      <ul class="list-unstyled small mb-0">{% for m in overdue_ws %}<li class="border-bottom py-1">{{ m.machine_name }}</li>{% else %}<li class="text-muted">All up to date.</li>{% endfor %}</ul>
+    </div></div>
+  </div>
+
+{% elif role=='qa_manager' %}
+  <div class="row g-3 mb-4">
+    {{ kpi('Open CAPAs', open_capas) }}
+    {{ kpi('Overdue CAPAs', overdue) }}
+    {{ kpi('Recent Rejections', recent_rej|length) }}
+  </div>
+  <div class="row g-3">
+    <div class="col-lg-6"><div class="kpi-card"><h6 class="fw-bold mb-3">Rejection Rate by Line (7d)</h6>
+      <div style="height:240px"><canvas id="rejChart" data-chart="rejData" data-type="bar"></canvas></div>
+      <script type="application/json" id="rejData">{"labels": {{ rej_chart.labels|tojson }}, "datasets":[{"label":"Rejection %","data": {{ rej_chart.data|tojson }},"backgroundColor":"#ea580c"}]}</script>
+    </div></div>
+    <div class="col-lg-6"><div class="kpi-card"><h6 class="fw-bold mb-3">Recent Rejection Events</h6>
+      <div class="table-responsive-wrap"><table class="table table-sm"><thead><tr><th>Defect</th><th>Qty</th><th>When</th></tr></thead>
+      <tbody>{% for r in recent_rej %}<tr><td>{{ r.defect_type }}</td><td>{{ r.quantity_rejected }}</td><td>{{ r.created_at|format_datetime('%d %b %H:%M') }}</td></tr>{% endfor %}</tbody></table></div>
+    </div></div>
+  </div>
+
+{% elif role=='shift_supervisor' %}
+  <div class="row g-3 mb-4">
+    {% if my_shift %}
+      {{ kpi('Output', my_shift.actual_units) }}
+      {{ kpi('Target', my_shift.target_units) }}
+      {{ kpi('Rejections', my_shift.rejection_count) }}
+      {{ kpi('Active Downtime', active_dt) }}
+    {% else %}<div class="col-12"><div class="kpi-card text-muted">No active shift on your line.</div></div>{% endif %}
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{{ url_for('production.output_log') }}" class="btn btn-teal">Log Output</a>
+    <a href="{{ url_for('downtime.log_event') }}" class="btn btn-outline-secondary">Log Downtime</a>
+    <a href="{{ url_for('rejections.log_rejection') }}" class="btn btn-outline-secondary">Log Rejection</a>
+  </div>
+
+{% else %}
+  <div class="row g-3 mb-4">
+    {% if my_shift %}{{ kpi('Current Output', my_shift.actual_units) }}{{ kpi('Target', my_shift.target_units) }}{% endif %}
+    {{ kpi('My Logs Today', my_logs|length) }}
+  </div>
+  <a href="{{ url_for('production.output_log') }}" class="btn btn-teal btn-lg">Quick Log Output</a>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>{% endblock %}

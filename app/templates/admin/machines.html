@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Machines{% endblock %}
+{% block breadcrumb %}Admin / Machines{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3"><h4 class="fw-bold mb-0">Machines</h4>
+  <a href="{{ url_for('admin.new_machine') }}" class="btn btn-teal btn-sm">New Machine</a></div>
+<div class="kpi-card"><div class="table-responsive-wrap"><table class="table table-sm align-middle">
+  <thead><tr><th>Name</th><th>Code</th><th>Type</th><th>Line</th><th></th></tr></thead>
+  <tbody>{% for m in machines %}<tr><td>{{ m.machine_name }}</td><td>{{ m.machine_code or '-' }}</td><td>{{ m.machine_type }}</td>
+    <td>{{ m.line.line_name }}</td><td><a href="{{ url_for('admin.edit_machine', id=m.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a></td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Invite User{% endblock %}
+{% block breadcrumb %}Admin / Invite{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">Invite User</h4>
+<div class="kpi-card" style="max-width:560px"><form method="post">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">{{ form.email.label(class="form-label") }}{{ form.email(class="form-control") }}
+    {% for e in form.email.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+  <div class="mb-3">{{ form.full_name.label(class="form-label") }}{{ form.full_name(class="form-control") }}</div>
+  <div class="mb-3">{{ form.role.label(class="form-label") }}{{ form.role(class="form-select") }}</div>
+  <div class="mb-3">{{ form.plant_id.label(class="form-label") }}{{ form.plant_id(class="form-select") }}</div>
+  {{ form.submit(class="btn btn-teal") }}
+</form></div>
+{% endblock %}

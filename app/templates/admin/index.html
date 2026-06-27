@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Admin - IntelliMOST{% endblock %}
+{% block breadcrumb %}Admin{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">Admin Hub</h4>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="kpi-card"><div class="kpi-label">Users</div><div class="kpi-value">{{ user_count }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="kpi-card"><div class="kpi-label">Plants</div><div class="kpi-value">{{ plant_count }}</div></div></div>
+</div>
+<div class="row g-2 mb-4">
+  {% for ep,label,icon in [('admin.users','Users','fa-users'),('admin.plants','Plants','fa-building'),('admin.lines','Lines','fa-grip-lines'),('admin.machines','Machines','fa-gears'),('admin.skus','SKUs','fa-boxes-stacked'),('admin.reason_codes','Reason Codes','fa-sitemap'),('admin.alert_rules','Alert Rules','fa-bell'),('admin.audit_logs','Audit Logs','fa-list-check'),('admin.integrations','Integrations','fa-plug')] %}
+  <div class="col-6 col-md-4 col-lg-3"><a href="{{ url_for(ep) }}" class="kpi-card d-block text-decoration-none text-dark text-center">
+    <i class="fa-solid {{ icon }} fs-4 mb-2" style="color:var(--color-teal)"></i><div>{{ label }}</div></a></div>
+  {% endfor %}
+</div>
+<div class="kpi-card"><h6 class="fw-bold mb-2">Recent Audit Logs</h6>
+  <ul class="list-unstyled small mb-0">{% for a in recent %}<li class="border-bottom py-1"><strong>{{ a.action }}</strong> · {{ a.user.full_name if a.user else '' }} · {{ a.created_at|format_datetime('%d %b %H:%M') }}</li>{% endfor %}</ul></div>
+{% endblock %}

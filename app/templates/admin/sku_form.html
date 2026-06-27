@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumb %}Admin / SKUs{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">{{ title }}</h4>
+<div class="kpi-card" style="max-width:560px"><form method="post">
+  {{ form.hidden_tag() }}
+  <div class="row g-3">
+    <div class="col-md-6">{{ form.sku_code.label(class="form-label") }}{{ form.sku_code(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.sku_name.label(class="form-label") }}{{ form.sku_name(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.unit_of_measure.label(class="form-label") }}{{ form.unit_of_measure(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.standard_batch_size.label(class="form-label") }}{{ form.standard_batch_size(class="form-control") }}</div>
+    <div class="col-12">{{ form.description.label(class="form-label") }}{{ form.description(class="form-control", rows=2) }}</div>
+  </div>{{ form.submit(class="btn btn-teal mt-3") }}
+</form></div>
+{% endblock %}

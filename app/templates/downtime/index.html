@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Downtime - IntelliMOST{% endblock %}
+{% block breadcrumb %}Downtime{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">Downtime Analysis</h4>
+  <div><a href="{{ url_for('downtime.log_event') }}" class="btn btn-teal btn-sm">Log Event</a></div>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-lg-6"><div class="kpi-card"><h6 class="fw-bold mb-2">Top Reasons (Pareto)</h6>
+    <div style="height:240px"><canvas id="pareto" data-chart="paretoData" data-type="bar"></canvas></div>
+    <script type="application/json" id="paretoData">{"labels":{{ pareto.labels|tojson }},"datasets":[{"label":"Minutes","data":{{ pareto.data|tojson }},"backgroundColor":"#DC2626"}]}</script>
+  </div></div>
+  <div class="col-lg-6"><div class="kpi-card"><h6 class="fw-bold mb-2">Daily Downtime (30d, hours)</h6>
+    <div style="height:240px"><canvas id="trend" data-chart="trendData" data-type="line"></canvas></div>
+    <script type="application/json" id="trendData">{"labels":{{ trend.labels|tojson }},"datasets":[{"label":"Hours","data":{{ trend.data|tojson }},"borderColor":"#0D9488","backgroundColor":"rgba(13,148,136,.1)","tension":.3,"fill":true}]}</script>
+  </div></div>
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-3"><select name="machine_id" class="form-select form-select-sm"><option value="">All machines</option>
+    {% for m in machines %}<option value="{{ m.id }}" {{ 'selected' if filters.machine_id==m.id }}>{{ m.machine_name }}</option>{% endfor %}</select></div>
+  <div class="col-md-3"><select name="event_type" class="form-select form-select-sm"><option value="">All types</option>
+    {% for t in ['unplanned','planned_maintenance','changeover','breakdown'] %}<option value="{{ t }}" {{ 'selected' if filters.event_type==t }}>{{ t }}</option>{% endfor %}</select></div>
+  <div class="col-md-2"><button class="btn btn-sm btn-outline-secondary">Filter</button></div>
+</form>
+<div class="kpi-card">
+  <div class="table-responsive-wrap"><table class="table table-sm align-middle">
+    <thead><tr><th>Machine</th><th>Type</th><th>Reason</th><th>Start</th><th>Duration</th><th>Status</th></tr></thead>
+    <tbody>{% for e in events %}<tr>
+      <td>{{ e.machine.machine_name }}</td><td>{{ e.event_type }}</td><td>{{ e.reason_code.label if e.reason_code else '-' }}</td>
+      <td>{{ e.start_time|format_datetime('%d %b %H:%M') }}</td>
+      <td>{{ e.duration_minutes|format_duration if e.duration_minutes else 'ongoing' }}</td>
+      <td>{% if e.is_resolved %}<span class="badge bg-success">Resolved</span>{% else %}<form method="post" action="{{ url_for('downtime.close', id=e.id) }}" class="d-inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger">Close</button></form>{% endif %}</td>
+    </tr>{% else %}<tr><td colspan="6" class="text-muted">No downtime events.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% include 'components/pagination.html' %}
+</div>
+{% if mtbf_mttr %}<div class="kpi-card mt-3"><h6 class="fw-bold mb-2">MTTR by Machine</h6>
+  <div class="table-responsive-wrap"><table class="table table-sm"><thead><tr><th>Machine</th><th>MTTR (min)</th><th>Events</th></tr></thead>
+  <tbody>{% for r in mtbf_mttr %}<tr><td>{{ r.machine }}</td><td>{{ r.mttr }}</td><td>{{ r.count }}</td></tr>{% endfor %}</tbody></table></div></div>{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>{% endblock %}

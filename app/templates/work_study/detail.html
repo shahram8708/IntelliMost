@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}{{ study.study_name }} - IntelliMOST{% endblock %}
+{% block breadcrumb %}Work Studies / {{ study.study_name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div><h4 class="fw-bold mb-1">{{ study.study_name }}</h4>
+    <span class="badge bg-secondary">{{ study.status }}</span> <span class="text-muted small">v{{ study.version }} · {{ study.analyst.full_name }} · {{ study.study_date.strftime('%d %b %Y') }}</span></div>
+  <div class="d-flex gap-2">
+    {% if study.status in ['draft','under_revision'] %}<a href="{{ url_for('work_study.edit', id=study.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>{% endif %}
+    {% if study.status=='draft' %}<form method="post" action="{{ url_for('work_study.publish', id=study.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-teal">Publish</button></form>{% endif %}
+    {% if study.status=='published' %}<form method="post" action="{{ url_for('work_study.revise', id=study.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-primary">Revise</button></form>{% endif %}
+    <form method="post" action="{{ url_for('work_study.archive', id=study.id) }}" data-confirm="Archive this study?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger">Archive</button></form>
+    <a href="{{ url_for('work_study.export', id=study.id) }}" class="btn btn-sm btn-outline-dark">Export PDF</a>
+    <a href="{{ url_for('work_study.compare', id=study.id) }}" class="btn btn-sm btn-outline-secondary">Compare</a>
+  </div>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-md-4"><div class="kpi-card"><div class="kpi-label">Total TMU</div><div class="kpi-value">{{ study.total_tmu }}</div></div></div>
+  <div class="col-md-4"><div class="kpi-card"><div class="kpi-label">Standard Time</div><div class="kpi-value">{{ '%.2f'|format(study.standard_time_sec or 0) }}s</div></div></div>
+  <div class="col-md-4"><div class="kpi-card"><div class="kpi-label">Allowed Time ({{ study.allowance_percent }}%)</div><div class="kpi-value">{{ '%.2f'|format(study.allowed_time_sec or 0) }}s</div></div></div>
+</div>
+<div class="kpi-card mb-3">
+  <h6 class="fw-bold mb-3">Elements</h6>
+  <div class="table-responsive-wrap"><table class="table table-striped table-sm">
+    <thead><tr><th>#</th><th>Element</th><th>Method</th><th>Index Values</th><th>TMU</th><th>AI</th></tr></thead>
+    <tbody>{% for e in elements %}<tr>
+      <td>{{ e.sequence_order }}</td><td>{{ e.element_name }}</td><td>{{ e.most_method }}</td>
+      <td class="small">{% for k,v in e.index_values.items() %}{{ k }}={{ v }} {% endfor %}</td>
+      <td>{{ e.element_tmu }}</td><td>{% if e.ai_suggested %}<span class="badge bg-info">AI</span>{% endif %}</td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+<div class="kpi-card">
+  <h6 class="fw-bold mb-3">Standard vs Actual Comparison</h6>
+  <div style="height:280px"><canvas id="cmpChart"></canvas></div>
+  <script type="application/json" id="cmpData">{"comparison": {{ comparison|tojson }}, "std": {{ (study.allowed_time_sec or 0)|tojson }}}</script>
+</div>
+{% if versions|length > 1 %}
+<div class="kpi-card mt-3"><h6 class="fw-bold mb-2">Version History</h6>
+  {% for v in versions %}<a href="{{ url_for('work_study.detail', id=v.id) }}" class="badge bg-light text-dark text-decoration-none me-1">v{{ v.version }} ({{ v.status }})</a>{% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var d=JSON.parse(document.getElementById('cmpData').textContent);
+  var c=document.getElementById('cmpChart');
+  if(!c||!window.Chart)return;
+  var labels=d.comparison.map(function(x){return x.date;});
+  var actual=d.comparison.map(function(x){return x.actual_time_sec;});
+  new Chart(c,{type:'line',data:{labels:labels,datasets:[
+    {label:'Actual cycle (s)',data:actual,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.1)',tension:.3},
+    {label:'Standard',data:labels.map(function(){return d.std;}),borderColor:'#DC2626',borderDash:[6,4],pointRadius:0}
+  ]},options:{responsive:true,maintainAspectRatio:false}});
+});
+</script>
+{% endblock %}

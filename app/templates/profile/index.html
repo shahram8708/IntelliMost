@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Profile - IntelliMOST{% endblock %}
+{% block breadcrumb %}Profile{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">My Profile</h4>
+<div class="row g-3">
+  <div class="col-lg-7"><div class="kpi-card"><form method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="row g-3">
+      <div class="col-md-6">{{ form.full_name.label(class="form-label") }}{{ form.full_name(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.phone.label(class="form-label") }}{{ form.phone(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.department.label(class="form-label") }}{{ form.department(class="form-control") }}</div>
+      <div class="col-md-6">{{ form.most_certification_level.label(class="form-label") }}{{ form.most_certification_level(class="form-control") }}</div>
+      <div class="col-md-6"><label class="form-label">Profile Photo</label><input type="file" name="profile_photo" class="form-control" accept="image/*"></div>
+    </div>
+    {{ form.submit(class="btn btn-teal mt-3") }}
+  </form></div></div>
+  <div class="col-lg-5"><div class="kpi-card"><h6 class="fw-bold mb-3">Change Password</h6><form method="post">
+    {{ pw_form.hidden_tag() }}
+    <div class="mb-2">{{ pw_form.current_password.label(class="form-label") }}{{ pw_form.current_password(class="form-control") }}</div>
+    <div class="mb-2">{{ pw_form.new_password.label(class="form-label") }}{{ pw_form.new_password(class="form-control") }}</div>
+    <div class="mb-2">{{ pw_form.confirm_password.label(class="form-label") }}{{ pw_form.confirm_password(class="form-control") }}</div>
+    {{ pw_form.submit(class="btn btn-outline-secondary") }}
+  </form></div></div>
+</div>
+{% endblock %}

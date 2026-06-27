@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Alerts - IntelliMOST{% endblock %}
+{% block breadcrumb %}Alerts{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">Alerts</h4>
+  {% if current_user.role in ['admin','plant_manager','super_admin'] %}<a href="{{ url_for('alerts.new_rule') }}" class="btn btn-teal btn-sm">New Rule</a>{% endif %}
+</div>
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#active">Active</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">History</a></li>
+  {% if current_user.role in ['admin','plant_manager','super_admin'] %}<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#rules">Rules</a></li>{% endif %}
+</ul>
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="active">
+    {% for e in active %}
+    <div class="alert-card sev-{{ e.status }}">
+      <div class="d-flex justify-content-between">
+        <div><strong>{{ e.rule.rule_name if e.rule else 'Alert' }}</strong>
+          <div class="small text-muted">{{ e.triggered_value }} vs threshold {{ e.threshold_value }} · {{ e.triggered_at|format_datetime('%d %b %H:%M') }} · <span class="badge bg-secondary">{{ e.status }}</span></div></div>
+        <form method="post" action="{{ url_for('alerts.acknowledge', id=e.id) }}" class="d-flex gap-2 align-items-center">
+          {{ ack_form.hidden_tag() }}
+          <select name="action" class="form-select form-select-sm" style="width:auto">{% for v,l in [('investigate','Investigate'),('capa_raised','Raise CAPA'),('dismissed_reason','Dismiss')] %}<option value="{{ v }}">{{ l }}</option>{% endfor %}</select>
+          <button class="btn btn-sm btn-teal">Acknowledge</button>
+        </form>
+      </div>
+    </div>
+    {% else %}<div class="empty-state"><i class="fa-solid fa-bell-slash fa-2x mb-2"></i><p>No active alerts.</p></div>{% endfor %}
+  </div>
+  <div class="tab-pane fade" id="history">
+    <div class="kpi-card"><div class="table-responsive-wrap"><table class="table table-sm">
+      <thead><tr><th>Rule</th><th>Value</th><th>Status</th><th>Ack By</th><th>When</th></tr></thead>
+      <tbody>{% for e in history.items %}<tr><td>{{ e.rule.rule_name if e.rule else '-' }}</td><td>{{ e.triggered_value }}</td>
+        <td>{{ e.status }}</td><td>{{ e.acknowledger.full_name if e.acknowledger else '-' }}</td><td>{{ e.triggered_at|format_datetime('%d %b %H:%M') }}</td></tr>{% else %}<tr><td colspan="5" class="text-muted">No history.</td></tr>{% endfor %}</tbody>
+    </table></div>{% with pagination=history %}{% include 'components/pagination.html' %}{% endwith %}</div>
+  </div>
+  {% if current_user.role in ['admin','plant_manager','super_admin'] %}
+  <div class="tab-pane fade" id="rules">
+    <div class="kpi-card"><div class="table-responsive-wrap"><table class="table table-sm align-middle">
+      <thead><tr><th>Rule</th><th>Metric</th><th>Condition</th><th>Active</th><th></th></tr></thead>
+      <tbody>{% for r in rules %}<tr>
+        <td>{{ r.rule_name }}</td><td>{{ r.metric_name }}</td><td>{{ r.operator }} {{ r.threshold_value }}</td>
+        <td><form method="post" action="{{ url_for('alerts.toggle_rule', id=r.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="form-check form-switch"><input type="checkbox" class="form-check-input" {{ 'checked' if r.is_active }} onchange="this.form.submit()"></div></form></td>
+        <td><a href="{{ url_for('alerts.edit_rule', id=r.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a></td>
+      </tr>{% else %}<tr><td colspan="5" class="text-muted">No rules.</td></tr>{% endfor %}</tbody>
+    </table></div></div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

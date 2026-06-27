@@ -1,0 +1,4 @@
+{% macro line_tile(line, shift, status) %}
+<div class="line-tile {{ status }}"><strong>{{ line.line_name }}</strong>
+  <span class="badge badge-{{ status }}">{{ status|capitalize }}</span></div>
+{% endmacro %}

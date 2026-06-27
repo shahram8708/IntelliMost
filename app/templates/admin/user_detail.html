@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}{{ user.full_name }}{% endblock %}
+{% block breadcrumb %}Admin / Users / {{ user.full_name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h4 class="fw-bold mb-0">{{ user.full_name }}</h4>
+  <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+</div>
+<div class="row g-3">
+  <div class="col-lg-5"><div class="kpi-card"><ul class="list-unstyled small mb-3">
+    <li><strong>Email:</strong> {{ user.email }}</li><li><strong>Role:</strong> {{ user.role }}</li>
+    <li><strong>Plant:</strong> {{ user.plant.name if user.plant else '-' }}</li>
+    <li><strong>Status:</strong> {{ 'Active' if user.is_active else 'Inactive' }}{{ ', Locked' if user.is_locked }}</li>
+    <li><strong>Phone:</strong> {{ user.phone or '-' }}</li><li><strong>Dept:</strong> {{ user.department or '-' }}</li>
+  </ul>
+  <div class="d-flex gap-2">
+    <form method="post" action="{{ url_for('admin.deactivate_user', id=user.id) }}" data-confirm="Deactivate user?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger">Deactivate</button></form>
+    {% if user.is_locked %}<form method="post" action="{{ url_for('admin.unlock_user', id=user.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-secondary">Unlock</button></form>{% endif %}
+    {% if not user.is_active and user.invitation_token %}<form method="post" action="{{ url_for('admin.resend_invite', id=user.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-secondary">Resend Invite</button></form>{% endif %}
+  </div>
+  </div></div>
+  <div class="col-lg-7"><div class="kpi-card"><h6 class="fw-bold mb-2">Recent Activity</h6>
+    <ul class="list-unstyled small mb-0">{% for l in logs %}<li class="border-bottom py-1">{{ l.action }} · {{ l.created_at|format_datetime('%d %b %H:%M') }}</li>{% else %}<li class="text-muted">No activity.</li>{% endfor %}</ul></div></div>
+</div>
+{% endblock %}

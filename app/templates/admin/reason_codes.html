@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Reason Codes{% endblock %}
+{% block breadcrumb %}Admin / Reason Codes{% endblock %}
+{% macro tree(node) %}
+<li>{{ node.label }} <span class="badge bg-light text-dark">{{ node.code }}</span> <span class="text-muted small">L{{ node.level }}</span>
+  {% if node.children %}<ul>{% for c in node.children %}{{ tree(c) }}{% endfor %}</ul>{% endif %}
+</li>
+{% endmacro %}
+{% block content %}
+<h4 class="fw-bold mb-3">Reason Codes</h4>
+<div class="row g-3">
+  <div class="col-lg-7"><div class="kpi-card"><ul>{% for t in tops %}{{ tree(t) }}{% endfor %}</ul></div></div>
+  <div class="col-lg-5"><div class="kpi-card"><h6 class="fw-bold mb-2">Add Reason Code</h6><form method="post">
+    {{ form.hidden_tag() }}
+    <div class="mb-2">{{ form.code.label(class="form-label") }}{{ form.code(class="form-control") }}</div>
+    <div class="mb-2">{{ form.label.label(class="form-label") }}{{ form.label(class="form-control") }}</div>
+    <div class="mb-2">{{ form.category.label(class="form-label") }}{{ form.category(class="form-select") }}</div>
+    <div class="mb-2">{{ form.parent_id.label(class="form-label") }}{{ form.parent_id(class="form-select") }}</div>
+    <div class="mb-2">{{ form.level.label(class="form-label") }}{{ form.level(class="form-control") }}</div>
+    {{ form.submit(class="btn btn-teal") }}
+  </form></div></div>
+</div>
+{% endblock %}

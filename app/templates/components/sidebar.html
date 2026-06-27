@@ -1,0 +1,33 @@
+{% set role = current_user.role %}
+{% macro navlink(endpoint, icon, label, roles=None) %}
+  {% if roles is none or role in roles or role=='super_admin' %}
+    <a class="nav-link {{ 'active' if request.blueprint==endpoint.split('.')[0] }}" href="{{ url_for(endpoint) }}">
+      <i class="fa-solid {{ icon }}"></i><span>{{ label }}</span>
+    </a>
+  {% endif %}
+{% endmacro %}
+<aside class="app-sidebar" id="appSidebar">
+  <div class="brand">
+    <a href="{{ url_for('dashboard.index') }}" class="d-flex align-items-center text-decoration-none">
+      <i class="fa-solid fa-chart-line text-white fs-4 me-2"></i>
+      <span class="brand-text text-white fw-bold">Intelli<span style="color:var(--color-teal)">MOST</span></span>
+    </a>
+  </div>
+  <nav class="nav flex-column py-2 flex-grow-1">
+    {{ navlink('dashboard.index','fa-gauge-high','Dashboard') }}
+    {{ navlink('production.index','fa-industry','Production',['admin','plant_manager','industrial_engineer','qa_manager','shift_supervisor','operator']) }}
+    {{ navlink('work_study.index','fa-stopwatch','Work Studies',['admin','plant_manager','industrial_engineer']) }}
+    {{ navlink('downtime.index','fa-triangle-exclamation','Downtime',['admin','plant_manager','industrial_engineer','qa_manager','shift_supervisor','operator']) }}
+    {{ navlink('rejections.index','fa-ban','Rejections',['admin','plant_manager','qa_manager','shift_supervisor','operator']) }}
+    {{ navlink('capa.index','fa-clipboard-check','CAPA',['admin','plant_manager','qa_manager']) }}
+    {{ navlink('alerts.index','fa-bell','Alerts',['admin','plant_manager','qa_manager','industrial_engineer']) }}
+    {{ navlink('improvements.index','fa-lightbulb','Improvements',['admin','plant_manager','industrial_engineer']) }}
+    {{ navlink('analytics.index','fa-chart-pie','Analytics',['admin','plant_manager','industrial_engineer','qa_manager']) }}
+    {{ navlink('reports.index','fa-file-lines','Reports',['admin','plant_manager','industrial_engineer','qa_manager']) }}
+    {{ navlink('admin.index','fa-gear','Admin',['admin']) }}
+  </nav>
+  <div class="border-top border-secondary py-2">
+    <a class="nav-link" href="{{ url_for('profile.index') }}"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+    <a class="nav-link" href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+  </div>
+</aside>

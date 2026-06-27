@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Work Studies - IntelliMOST{% endblock %}
+{% block breadcrumb %}Work Studies{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">MOST Work Studies</h4>
+  <a href="{{ url_for('work_study.new_study') }}" class="btn btn-teal btn-sm">New Study</a>
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-3"><select name="status" class="form-select form-select-sm">
+    <option value="">All statuses</option>
+    {% for s in ['draft','published','archived','under_revision'] %}<option value="{{ s }}" {{ 'selected' if filters.status==s }}>{{ s }}</option>{% endfor %}</select></div>
+  <div class="col-md-3"><select name="workstation_id" class="form-select form-select-sm"><option value="">All workstations</option>
+    {% for m in machines %}<option value="{{ m.id }}" {{ 'selected' if filters.workstation_id==m.id }}>{{ m.machine_name }}</option>{% endfor %}</select></div>
+  <div class="col-md-2"><button class="btn btn-sm btn-outline-secondary">Filter</button></div>
+</form>
+<div class="kpi-card">
+  <div class="table-responsive-wrap"><table class="table table-striped table-sm align-middle">
+    <thead><tr><th>Study</th><th>Workstation</th><th>Status</th><th>Total TMU</th><th>Std Time</th><th>Date</th></tr></thead>
+    <tbody>{% for s in studies %}<tr>
+      <td><a href="{{ url_for('work_study.detail', id=s.id) }}">{{ s.study_name }}</a> <span class="badge bg-light text-dark">v{{ s.version }}</span></td>
+      <td>{{ s.workstation.machine_name }}</td>
+      <td><span class="badge bg-secondary">{{ s.status }}</span></td>
+      <td>{{ s.total_tmu }}</td><td>{{ '%.1f'|format(s.allowed_time_sec or 0) }}s</td>
+      <td>{{ s.study_date.strftime('%d %b %Y') }}</td>
+    </tr>{% else %}<tr><td colspan="6" class="text-muted">No studies found.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% include 'components/pagination.html' %}
+</div>
+{% endblock %}

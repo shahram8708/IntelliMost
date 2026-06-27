@@ -1,0 +1,4 @@
+{% macro alert_panel(event) %}
+<div class="alert-card sev-{{ event.status }}"><strong>{{ event.rule.rule_name if event.rule else 'Alert' }}</strong>
+  <div class="small text-muted">{{ event.triggered_value }} vs {{ event.threshold_value }}</div></div>
+{% endmacro %}

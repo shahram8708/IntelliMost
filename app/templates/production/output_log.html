@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Log Output - IntelliMOST{% endblock %}
+{% block breadcrumb %}Production / Log Output{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-6">
+  <div class="kpi-card">
+    <h5 class="fw-bold mb-3">Log Production Output</h5>
+    <form method="post" class="touch-friendly">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">{{ form.shift_id.label(class="form-label") }}{{ form.shift_id(class="form-select") }}</div>
+      <div class="mb-3">{{ form.quantity.label(class="form-label") }}{{ form.quantity(class="form-control") }}
+        {% for e in form.quantity.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+      <div class="mb-3">{{ form.notes.label(class="form-label") }}{{ form.notes(class="form-control", rows=2) }}</div>
+      {{ form.submit(class="btn btn-teal w-100") }}
+    </form>
+  </div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Log Downtime - IntelliMOST{% endblock %}
+{% block breadcrumb %}Downtime / Log{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-7">
+<h4 class="fw-bold mb-3">Log Downtime Event</h4>
+<form method="post" class="touch-friendly">
+  {{ form.hidden_tag() }}
+  <input type="hidden" name="machine_id" id="machine_id">
+  <input type="hidden" name="event_type" id="event_type">
+  <input type="hidden" name="reason_code_id" id="reason_code_id" value="0">
+
+  <div class="kpi-card mb-3"><label class="form-label fw-bold">1. Select Machine</label>
+    <div class="row g-2">{% for m in machines %}
+      <div class="col-6 col-md-4"><div class="tile-select machine-tile" data-id="{{ m.id }}">{{ m.machine_name }}</div></div>{% endfor %}</div>
+  </div>
+
+  <div class="kpi-card mb-3"><label class="form-label fw-bold">2. Event Type</label>
+    <div class="row g-2">{% for v,l in [('unplanned','Unplanned'),('planned_maintenance','Planned Maintenance'),('changeover','Changeover'),('breakdown','Breakdown')] %}
+      <div class="col-6"><div class="tile-select etype-tile" data-val="{{ v }}">{{ l }}</div></div>{% endfor %}</div>
+  </div>
+
+  <div class="kpi-card mb-3"><label class="form-label fw-bold">3. Reason Code</label>
+    <div class="row g-2">{% for r in reasons if r.level==3 %}
+      <div class="col-6 col-md-4"><div class="tile-select reason-tile" data-id="{{ r.id }}">{{ r.label }}</div></div>{% endfor %}</div>
+  </div>
+
+  <div class="kpi-card mb-3">
+    <label class="form-label fw-bold">4. Shift &amp; Time</label>
+    <div class="mb-2">{{ form.shift_id(class="form-select") }}</div>
+    <div class="row g-2">
+      <div class="col-md-6"><label class="form-label small">Start</label>{{ form.start_time(class="form-control", id="start_time") }}
+        <button type="button" class="btn btn-sm btn-outline-secondary mt-1" id="startNow">Now</button></div>
+      <div class="col-md-6"><label class="form-label small">End (optional)</label>{{ form.end_time(class="form-control") }}</div>
+    </div>
+    <div class="mt-2">{{ form.notes(class="form-control", rows=2, placeholder="Notes") }}</div>
+  </div>
+
+  <button class="btn btn-teal w-100" style="min-height:56px">Submit Downtime Event</button>
+</form>
+</div></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/downtime_log.js') }}"></script>{% endblock %}

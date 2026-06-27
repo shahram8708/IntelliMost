@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - IntelliMOST{% endblock %}
+{% block breadcrumb %}Alerts / Rules{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">{{ title }}</h4>
+<div class="kpi-card"><form method="post">
+  {{ form.hidden_tag() }}
+  <div class="row g-3">
+    <div class="col-md-6">{{ form.rule_name.label(class="form-label") }}{{ form.rule_name(class="form-control") }}</div>
+    <div class="col-md-3">{{ form.metric_name.label(class="form-label") }}{{ form.metric_name(class="form-select") }}</div>
+    <div class="col-md-3">{{ form.line_id.label(class="form-label") }}{{ form.line_id(class="form-select") }}</div>
+    <div class="col-md-3">{{ form.operator.label(class="form-label") }}{{ form.operator(class="form-select") }}</div>
+    <div class="col-md-3">{{ form.threshold_value.label(class="form-label") }}{{ form.threshold_value(class="form-control") }}</div>
+    <div class="col-md-3">{{ form.time_window_minutes.label(class="form-label") }}{{ form.time_window_minutes(class="form-control") }}</div>
+    <div class="col-md-3">{{ form.escalation_timeout_minutes.label(class="form-label") }}{{ form.escalation_timeout_minutes(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.recipient_user_ids.label(class="form-label") }}{{ form.recipient_user_ids(class="form-select", size=4) }}</div>
+    <div class="col-md-6">{{ form.escalation_user_ids.label(class="form-label") }}{{ form.escalation_user_ids(class="form-select", size=4) }}</div>
+    <div class="col-12"><div class="form-check">{{ form.is_active(class="form-check-input") }}{{ form.is_active.label(class="form-check-label") }}</div></div>
+  </div>
+  {{ form.submit(class="btn btn-teal mt-3") }}
+</form></div>
+{% endblock %}

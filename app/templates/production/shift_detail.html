@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Shift Detail - IntelliMOST{% endblock %}
+{% block breadcrumb %}Production / Shift{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">{{ shift.line.line_name }} - {{ shift.shift_label }}</h4>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="kpi-card"><div class="kpi-label">OEE</div><div class="kpi-value">{{ oee.oee_percent if oee else 0 }}%</div></div></div>
+  <div class="col-6 col-lg-3"><div class="kpi-card"><div class="kpi-label">Availability</div><div class="kpi-value">{{ oee.availability_percent if oee else 0 }}%</div></div></div>
+  <div class="col-6 col-lg-3"><div class="kpi-card"><div class="kpi-label">Performance</div><div class="kpi-value">{{ oee.performance_percent if oee else 0 }}%</div></div></div>
+  <div class="col-6 col-lg-3"><div class="kpi-card"><div class="kpi-label">Quality</div><div class="kpi-value">{{ oee.quality_percent if oee else 0 }}%</div></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6"><div class="kpi-card"><h6 class="fw-bold mb-3">Output Logs</h6>
+    <div class="table-responsive-wrap"><table class="table table-sm"><thead><tr><th>Qty</th><th>Cumulative</th><th>When</th></tr></thead>
+    <tbody>{% for o in outputs %}<tr><td>{{ o.quantity }}</td><td>{{ o.cumulative_total }}</td><td>{{ o.logged_at|format_datetime('%H:%M') }}</td></tr>{% else %}<tr><td colspan="3" class="text-muted">No output logged.</td></tr>{% endfor %}</tbody></table></div>
+  </div></div>
+  <div class="col-lg-6"><div class="kpi-card"><h6 class="fw-bold mb-3">Downtime</h6>
+    <div class="table-responsive-wrap"><table class="table table-sm"><thead><tr><th>Machine</th><th>Type</th><th>Duration</th></tr></thead>
+    <tbody>{% for d in shift.downtime_events %}<tr><td>{{ d.machine.machine_name }}</td><td>{{ d.event_type }}</td><td>{{ d.duration_minutes|format_duration if d.duration_minutes else '-' }}</td></tr>{% else %}<tr><td colspan="3" class="text-muted">None.</td></tr>{% endfor %}</tbody></table></div>
+  </div></div>
+</div>
+{% endblock %}

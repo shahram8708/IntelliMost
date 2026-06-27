@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}{{ capa.capa_number }} - IntelliMOST{% endblock %}
+{% block breadcrumb %}CAPA / {{ capa.capa_number }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div><h4 class="fw-bold mb-1">{{ capa.capa_number }}</h4>
+    <span class="badge badge-{{ capa.severity }}">{{ capa.severity }}</span>
+    <span class="badge bg-secondary">{{ capa.status }}</span>
+    <span class="small {{ 'text-danger fw-bold' if capa.is_overdue }}">Due {{ capa.due_date.strftime('%d %b %Y') }}</span></div>
+  <a href="{{ url_for('capa.export', id=capa.id) }}" class="btn btn-sm btn-outline-dark">Export PDF</a>
+</div>
+<h5 class="mb-3">{{ capa.title }}</h5>
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="kpi-card mb-3"><h6 class="fw-bold">Deviation Description</h6><p class="mb-0">{{ capa.deviation_description }}</p></div>
+    <div class="kpi-card mb-3"><h6 class="fw-bold">Root Cause Analysis</h6>
+      {% if capa.rca %}
+        <p class="small mb-1"><strong>Root cause:</strong> {{ capa.rca.root_cause_statement or '-' }}</p>
+        {% if capa.rca.root_cause_category %}<span class="badge bg-info">{{ capa.rca.root_cause_category }}</span>{% endif %}
+        <a href="{{ url_for('rca.workspace', capa_id=capa.id) }}" class="btn btn-sm btn-outline-secondary mt-2">Edit RCA</a>
+      {% else %}<a href="{{ url_for('rca.workspace', capa_id=capa.id) }}" class="btn btn-sm btn-teal">Start RCA Analysis</a>{% endif %}
+    </div>
+    <div class="kpi-card mb-3"><h6 class="fw-bold">Actions</h6>
+      <form method="post" action="{{ url_for('capa.update', id=capa.id) }}">
+        {{ update_form.hidden_tag() }}
+        <div class="mb-2">{{ update_form.immediate_action.label(class="form-label small") }}{{ update_form.immediate_action(class="form-control", rows=2) }}</div>
+        <div class="mb-2">{{ update_form.root_cause_summary.label(class="form-label small") }}{{ update_form.root_cause_summary(class="form-control", rows=2) }}</div>
+        <div class="mb-2">{{ update_form.corrective_action.label(class="form-label small") }}{{ update_form.corrective_action(class="form-control", rows=2) }}</div>
+        <div class="mb-2">{{ update_form.preventive_action.label(class="form-label small") }}{{ update_form.preventive_action(class="form-control", rows=2) }}</div>
+        {{ update_form.submit(class="btn btn-sm btn-teal") }}
+      </form>
+    </div>
+    <div class="kpi-card"><h6 class="fw-bold">Discussion</h6>
+      {% for c in capa.comments %}<div class="border-bottom py-2"><strong class="small">{{ c.user.full_name }}</strong>
+        <span class="text-muted small">· {{ c.created_at|format_datetime('%d %b %H:%M') }}</span><div class="small">{{ c.body }}</div></div>{% else %}<p class="text-muted small">No comments.</p>{% endfor %}
+      <form method="post" action="{{ url_for('capa.comment', id=capa.id) }}" class="mt-2">
+        {{ comment_form.hidden_tag() }}{{ comment_form.body(class="form-control mb-2", rows=2, placeholder="Add a comment") }}
+        {{ comment_form.submit(class="btn btn-sm btn-outline-secondary") }}
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="kpi-card mb-3"><h6 class="fw-bold">Details</h6>
+      <ul class="list-unstyled small mb-0">
+        <li><strong>Owner:</strong> {{ capa.owner.full_name }}</li>
+        <li><strong>Raised by:</strong> {{ capa.raised_by.full_name }}</li>
+        <li><strong>Reviewer:</strong> {{ capa.reviewer.full_name if capa.reviewer else '-' }}</li>
+        <li><strong>Source:</strong> {{ capa.source_type }}</li>
+        <li><strong>Machine:</strong> {{ capa.affected_machine.machine_name if capa.affected_machine else '-' }}</li>
+        <li><strong>Batch:</strong> {{ capa.affected_batch or '-' }}</li>
+      </ul>
+    </div>
+    <div class="kpi-card mb-3"><h6 class="fw-bold">Update Status</h6>
+      <form method="post" action="{{ url_for('capa.status', id=capa.id) }}" enctype="multipart/form-data">
+        {{ status_form.hidden_tag() }}
+        <div class="mb-2">{{ status_form.new_status(class="form-select form-select-sm") }}</div>
+        <div class="mb-2">{{ status_form.closure_notes(class="form-control form-control-sm", rows=2, placeholder="Closure notes (required to close)") }}</div>
+        <div class="mb-2">{{ status_form.evidence(class="form-control form-control-sm") }}</div>
+        {{ status_form.submit(class="btn btn-sm btn-teal w-100") }}
+      </form>
+    </div>
+    {% if capa.evidence_paths %}<div class="kpi-card"><h6 class="fw-bold">Evidence</h6>
+      <ul class="list-unstyled small mb-0">{% for p in capa.evidence_paths %}<li><a href="{{ url_for('main.uploads', filename=p) }}">{{ p.split('/')[-1] }}</a></li>{% endfor %}</ul></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

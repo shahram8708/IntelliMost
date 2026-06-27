@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{font-family:Arial,sans-serif;font-size:12px;color:#222}
+h1{color:#1B3A6B;font-size:20px}table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:6px;text-align:left}th{background:#1B3A6B;color:#fff}
+.kpi{display:inline-block;margin-right:24px}
+</style></head><body>
+<h1>MOST Work Study Report</h1>
+{% if study %}
+<p><strong>{{ study.study_name }}</strong> (v{{ study.version }}, {{ study.status }})</p>
+<p>Workstation: {{ study.workstation.machine_name }} · Analyst: {{ study.analyst.full_name }} · Date: {{ study.study_date }}</p>
+<p>Sample size: {{ study.sample_size }} · Allowance: {{ study.allowance_percent }}%</p>
+<div>
+  <span class="kpi"><strong>Total TMU:</strong> {{ study.total_tmu }}</span>
+  <span class="kpi"><strong>Standard:</strong> {{ '%.2f'|format(study.standard_time_sec or 0) }}s</span>
+  <span class="kpi"><strong>Allowed:</strong> {{ '%.2f'|format(study.allowed_time_sec or 0) }}s</span>
+</div>
+<table><thead><tr><th>#</th><th>Element</th><th>Method</th><th>Index Values</th><th>TMU</th></tr></thead>
+<tbody>{% for e in study.elements %}<tr><td>{{ e.sequence_order }}</td><td>{{ e.element_name }}</td><td>{{ e.most_method }}</td>
+<td>{% for k,v in e.index_values.items() %}{{ k }}={{ v }} {% endfor %}</td><td>{{ e.element_tmu }}</td></tr>{% endfor %}</tbody></table>
+{% else %}<p>Study not found.</p>{% endif %}
+<p style="margin-top:24px;color:#888">Generated {{ now }} by IntelliMOST</p>
+</body></html>

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Leads{% endblock %}
+{% block breadcrumb %}Admin / Leads{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">Demo Requests &amp; Leads</h4>
+<div class="kpi-card"><div class="table-responsive-wrap"><table class="table table-sm">
+  <thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Role</th><th>Source</th><th>When</th></tr></thead>
+  <tbody>{% for l in leads %}<tr><td>{{ l.name }}</td><td>{{ l.email }}</td><td>{{ l.company or '-' }}</td>
+    <td>{{ l.role or '-' }}</td><td>{{ l.source }}</td><td>{{ l.created_at|format_datetime('%d %b %H:%M') }}</td></tr>{% else %}<tr><td colspan="6" class="text-muted">No leads.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

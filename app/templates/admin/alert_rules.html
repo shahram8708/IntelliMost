@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Alert Rules{% endblock %}
+{% block breadcrumb %}Admin / Alert Rules{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3"><h4 class="fw-bold mb-0">Alert Rules</h4>
+  <a href="{{ url_for('alerts.new_rule') }}" class="btn btn-teal btn-sm">New Rule</a></div>
+<div class="kpi-card"><div class="table-responsive-wrap"><table class="table table-sm align-middle">
+  <thead><tr><th>Rule</th><th>Metric</th><th>Condition</th><th>Active</th><th></th></tr></thead>
+  <tbody>{% for r in rules %}<tr><td>{{ r.rule_name }}</td><td>{{ r.metric_name }}</td><td>{{ r.operator }} {{ r.threshold_value }}</td>
+    <td>{{ 'Yes' if r.is_active else 'No' }}</td><td><a href="{{ url_for('alerts.edit_rule', id=r.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a></td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

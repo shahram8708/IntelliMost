@@ -1,0 +1,148 @@
+{% extends 'base_public.html' %}
+{% block content %}
+<section class="public-hero">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <h1 class="fw-bold mb-3" style="font-size:3rem">Transform Your Shop Floor with AI-Powered Work Study.</h1>
+        <p class="lead text-light-emphasis mb-4" style="color:#c7d4ea">Digitize MOST work studies, monitor production in real-time, and drive continuous improvement - purpose-built for pharmaceutical and process manufacturing.</p>
+        <div class="d-flex flex-wrap gap-3">
+          <a href="#demo" class="btn btn-teal btn-lg px-5 py-3">Request a Demo</a>
+          <a href="#how" class="btn btn-outline-light btn-lg">See How It Works</a>
+        </div>
+        <p class="small mt-4 mb-0" style="color:#9fb1cf">Trusted by pharmaceutical and process manufacturing plants across India.</p>
+      </div>
+      <div class="col-lg-5">
+        <div class="bg-white rounded-4 shadow p-4">
+          <div class="d-flex justify-content-between mb-3">
+            <span class="fw-bold" style="color:var(--color-navy)">Plant OEE</span>
+            <span class="badge badge-running">Running</span>
+          </div>
+          <div class="display-5 fw-bold" style="color:var(--color-teal)">78.4%</div>
+          <div class="progress my-3" style="height:10px"><div class="progress-bar" style="width:78%;background:var(--color-teal)"></div></div>
+          <div class="row text-center small">
+            <div class="col"><div class="fw-bold fs-5" style="color:var(--color-navy)">92%</div>Availability</div>
+            <div class="col"><div class="fw-bold fs-5" style="color:var(--color-navy)">88%</div>Performance</div>
+            <div class="col"><div class="fw-bold fs-5" style="color:var(--color-navy)">96%</div>Quality</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-white">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-5" style="color:var(--color-navy)">Everything you need to optimize operations.</h2>
+    <div class="row g-4">
+      {% set feats = [
+        ('fa-industry','#2563eb','Production Monitoring','Track shift output, OEE, and line status in real time.'),
+        ('fa-stopwatch','#0D9488','MOST Work Studies','Build digital MOST studies and standard times with a guided wizard.'),
+        ('fa-robot','#6b21a8','AI Assistance','Gemini-powered index suggestions and root cause hints.'),
+        ('fa-clipboard-check','#ea580c','CAPA Management','Full CAPA lifecycle with evidence and approvals.'),
+        ('fa-magnifying-glass-chart','#16a34a','RCA Assistant','5-Why workspace with similar-event suggestions.'),
+        ('fa-chart-pie','#dc2626','Analytics & Reports','Trend charts, PDF and Excel exports out of the box.') ] %}
+      {% for icon,color,title,desc in feats %}
+      <div class="col-md-4">
+        <div class="kpi-card h-100">
+          <span class="feature-icon mb-3" style="background:{{ color }}"><i class="fa-solid {{ icon }}"></i></span>
+          <h5 class="fw-bold">{{ title }}</h5>
+          <p class="text-muted small">{{ desc }}</p>
+          <a href="{{ url_for('main.features') }}" class="small text-decoration-none">Learn More →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="how" class="py-5" style="background:var(--color-gray-bg)">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-5" style="color:var(--color-navy)">How it works</h2>
+    <div class="row g-4">
+      {% for n,title in [(1,'Connect Your Production Data'),(2,'Conduct Digital MOST Studies'),(3,'Monitor Real-Time Performance'),(4,'Act on AI-Powered Insights')] %}
+      <div class="col-md-3 text-center">
+        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3 fw-bold fs-4 text-white" style="width:56px;height:56px;background:var(--color-teal)">{{ n }}</div>
+        <h6 class="fw-bold">{{ title }}</h6>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-5"><div class="kpi-card h-100">
+        <p class="fst-italic">"IntelliMOST cut our changeover analysis time in half and gave our engineers a single source of truth."</p>
+        <div class="small text-muted">Head of Operations · Mid-size pharma plant</div></div></div>
+      <div class="col-md-5"><div class="kpi-card h-100">
+        <p class="fst-italic">"Real-time OEE and CAPA tracking finally put quality and production on the same page."</p>
+        <div class="small text-muted">QA Manager · Process manufacturer</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="demo" class="py-5" style="background:var(--color-teal)">
+  <div class="container">
+    <div class="card border-0 shadow mx-auto" style="max-width:600px">
+      <div class="card-body p-4">
+        <h3 class="fw-bold text-center mb-4" style="color:var(--color-navy)">Request a Free Demo</h3>
+        <form method="post" action="{{ url_for('main.index') }}#demo">
+          {{ form.hidden_tag() }}
+          <div class="row g-3">
+            <div class="col-md-6">{{ form.name.label(class="form-label") }}{{ form.name(class="form-control") }}</div>
+            <div class="col-md-6">{{ form.email.label(class="form-label") }}{{ form.email(class="form-control") }}</div>
+            <div class="col-md-6">{{ form.company.label(class="form-label") }}{{ form.company(class="form-control") }}</div>
+            <div class="col-md-6">{{ form.phone.label(class="form-label") }}{{ form.phone(class="form-control") }}</div>
+            <div class="col-md-6">{{ form.role.label(class="form-label") }}{{ form.role(class="form-select") }}</div>
+            <div class="col-md-6">{{ form.facility_type.label(class="form-label") }}{{ form.facility_type(class="form-select") }}</div>
+          </div>
+          {{ form.submit(class="btn btn-navy w-100 mt-3") }}
+          <p class="small text-muted text-center mt-2 mb-0">We respect your privacy. No spam, ever.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="py-5 bg-white">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-5" style="color:var(--color-navy)">Simple, transparent pricing</h2>
+    <div class="row g-4 justify-content-center">
+      {% for name,price,feats in [
+        ('Starter','₹25,000/mo',['1 plant','Up to 3 lines','MOST studies','Email support']),
+        ('Professional','₹65,000/mo',['Unlimited lines','AI assistance','CAPA & RCA','Priority support']),
+        ('Enterprise','Custom',['Multi-plant','SSO & integrations','Dedicated CSM','SLA']) ] %}
+      <div class="col-md-4"><div class="kpi-card h-100 text-center">
+        <h5 class="fw-bold">{{ name }}</h5>
+        <div class="display-6 fw-bold my-2" style="color:var(--color-teal)">{{ price }}</div>
+        <ul class="list-unstyled small text-start my-3">
+          {% for f in feats %}<li><i class="fa-solid fa-check text-success me-2"></i>{{ f }}</li>{% endfor %}
+        </ul>
+        <a href="#demo" class="btn btn-teal w-100">Get Started</a>
+      </div></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="py-5" style="background:var(--color-gray-bg)">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-4" style="color:var(--color-navy)">Frequently asked questions</h2>
+    <div class="accordion mx-auto" id="faq" style="max-width:760px">
+      {% for q,a in [
+        ('Do I need to install anything?','No. IntelliMOST is a web application. Optionally deploy it on-prem via Docker.'),
+        ('Is MOST calculation accurate?','Yes. We use the standard TMU model (sum of index values × 10, 1 TMU = 0.036s).'),
+        ('Can it work without internet AI?','Yes. If the AI service is unavailable, a rule-based fallback suggests MOST indices.'),
+        ('How is data isolated between plants?','Every query is scoped to the plant of the signed-in user; super admins see everything.'),
+        ('Do you support data export?','MOST studies and CAPAs export to PDF; rejections and downtime export to Excel.') ] %}
+      <div class="accordion-item">
+        <h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#f{{ loop.index }}">{{ q }}</button></h2>
+        <div id="f{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body small">{{ a }}</div></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Log Rejection - IntelliMOST{% endblock %}
+{% block breadcrumb %}Rejections / Log{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-7">
+<h4 class="fw-bold mb-3">Log Rejection</h4>
+<div class="kpi-card"><form method="post" class="touch-friendly">
+  {{ form.hidden_tag() }}
+  <div class="row g-3">
+    <div class="col-md-6">{{ form.shift_id.label(class="form-label") }}{{ form.shift_id(class="form-select") }}</div>
+    <div class="col-md-6">{{ form.machine_id.label(class="form-label") }}{{ form.machine_id(class="form-select") }}</div>
+    <div class="col-md-6">{{ form.sku_id.label(class="form-label") }}{{ form.sku_id(class="form-select") }}</div>
+    <div class="col-md-6">{{ form.quantity_rejected.label(class="form-label") }}{{ form.quantity_rejected(class="form-control") }}
+      {% for e in form.quantity_rejected.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+    <div class="col-md-6">{{ form.defect_type.label(class="form-label") }}{{ form.defect_type(class="form-control") }}
+      {% for e in form.defect_type.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+    <div class="col-md-6">{{ form.quality_check_point.label(class="form-label") }}{{ form.quality_check_point(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.probable_cause.label(class="form-label") }}{{ form.probable_cause(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.batch_reference.label(class="form-label") }}{{ form.batch_reference(class="form-control") }}</div>
+    <div class="col-12">{{ form.defect_description.label(class="form-label") }}{{ form.defect_description(class="form-control", rows=2) }}</div>
+  </div>
+  {{ form.submit(class="btn btn-teal w-100 mt-3") }}
+</form></div>
+</div></div>
+{% endblock %}

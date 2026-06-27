@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Study Comparison - IntelliMOST{% endblock %}
+{% block breadcrumb %}Work Studies / Compare{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">{{ study.study_name }} - Standard vs Actual</h4>
+<div class="kpi-card mb-3"><div style="height:300px"><canvas id="cmpChart"></canvas></div>
+  <script type="application/json" id="cmpData">{"comparison": {{ comparison|tojson }}, "std": {{ (study.allowed_time_sec or 0)|tojson }}}</script>
+</div>
+<div class="kpi-card"><h6 class="fw-bold mb-2">Occurrences</h6>
+  <div class="table-responsive-wrap"><table class="table table-sm"><thead><tr><th>Date</th><th>Shift</th><th>Actual (s)</th><th>Efficiency</th></tr></thead>
+  <tbody>{% for c in comparison %}<tr><td>{{ c.date }}</td><td>{{ c.shift_label }}</td><td>{{ c.actual_time_sec }}</td>
+    <td class="{{ c.efficiency_ratio|efficiency_class }}">{{ c.efficiency_ratio }}%</td></tr>{% else %}<tr><td colspan="4" class="text-muted">No production data to compare yet.</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var d=JSON.parse(document.getElementById('cmpData').textContent);var c=document.getElementById('cmpChart');
+  if(!c||!window.Chart)return;
+  var labels=d.comparison.map(function(x){return x.date;});
+  new Chart(c,{type:'line',data:{labels:labels,datasets:[
+    {label:'Actual (s)',data:d.comparison.map(function(x){return x.actual_time_sec;}),borderColor:'#2563eb',tension:.3},
+    {label:'Standard',data:labels.map(function(){return d.std;}),borderColor:'#DC2626',borderDash:[6,4],pointRadius:0}
+  ]},options:{responsive:true,maintainAspectRatio:false}});
+});
+</script>
+{% endblock %}

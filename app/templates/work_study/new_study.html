@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}New Study - IntelliMOST{% endblock %}
+{% block breadcrumb %}Work Studies / New{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-4">New MOST Work Study</h4>
+<div class="stepper">
+  {% for n,label in [(1,'Metadata'),(2,'Observation'),(3,'Elements'),(4,'Review'),(5,'Publish')] %}
+  <div class="step {{ 'active' if step==n }} {{ 'done' if step>n }}">
+    <div class="circle">{{ n }}</div><div class="small mt-1">{{ label }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="kpi-card">
+{% if step==1 %}
+  <form method="post">
+    {{ meta_form.hidden_tag() }}<input type="hidden" name="step" value="1">
+    <div class="row g-3">
+      <div class="col-md-6">{{ meta_form.study_name.label(class="form-label") }}{{ meta_form.study_name(class="form-control") }}
+        {% for e in meta_form.study_name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+      <div class="col-md-6">{{ meta_form.workstation_id.label(class="form-label") }}{{ meta_form.workstation_id(class="form-select") }}</div>
+      <div class="col-md-6">{{ meta_form.sku_id.label(class="form-label") }}{{ meta_form.sku_id(class="form-select") }}</div>
+      <div class="col-md-3">{{ meta_form.shift_observed.label(class="form-label") }}{{ meta_form.shift_observed(class="form-control") }}</div>
+      <div class="col-md-3">{{ meta_form.study_date.label(class="form-label") }}{{ meta_form.study_date(class="form-control") }}</div>
+      <div class="col-md-3">{{ meta_form.sample_size.label(class="form-label") }}{{ meta_form.sample_size(class="form-control") }}</div>
+      <div class="col-md-3">{{ meta_form.allowance_percent.label(class="form-label") }}{{ meta_form.allowance_percent(class="form-control") }}</div>
+      <div class="col-md-6">{{ meta_form.observation_method.label(class="form-label") }}{{ meta_form.observation_method(class="form-select") }}</div>
+      <div class="col-12">{{ meta_form.working_conditions.label(class="form-label") }}{{ meta_form.working_conditions(class="form-control", rows=2) }}</div>
+    </div>
+    <div class="mt-3 text-end">{{ meta_form.submit(class="btn btn-teal") }}</div>
+  </form>
+
+{% elif step==2 %}
+  <form method="post" enctype="multipart/form-data">
+    {{ video_form.hidden_tag() }}<input type="hidden" name="step" value="2">
+    {% if wiz.observation_method=='video_upload' %}
+      <p>Upload an MP4 recording of the operation (max 500MB).</p>
+      <div class="mb-3">{{ video_form.video_file(class="form-control") }}</div>
+    {% else %}
+      <p>Manual timer selected. You'll enter elements and optionally record timings in the next step.</p>
+    {% endif %}
+    <div class="d-flex justify-content-between">
+      <a href="{{ url_for('work_study.new_study', step=1) }}" class="btn btn-outline-secondary">Previous</a>
+      {{ video_form.submit(class="btn btn-teal") }}
+    </div>
+  </form>
+
+{% elif step==3 %}
+  <h6 class="fw-bold mb-3">Elements ({{ totals.count }})</h6>
+  <div class="table-responsive-wrap mb-3"><table class="table table-sm align-middle">
+    <thead><tr><th>#</th><th>Element</th><th>Method</th><th>TMU</th><th></th></tr></thead>
+    <tbody>{% for e in wiz.elements %}<tr>
+      <td>{{ loop.index }}</td><td>{{ e.element_name }}</td><td>{{ e.most_method }}</td><td>{{ e.element_tmu }}</td>
+      <td><form method="post" class="d-inline"><input type="hidden" name="step" value="3"><input type="hidden" name="action" value="remove_element"><input type="hidden" name="element_index" value="{{ loop.index0 }}">{{ element_form.csrf_token }}<button class="btn btn-sm btn-outline-danger">Remove</button></form></td>
+    </tr>{% else %}<tr><td colspan="5" class="text-muted">No elements yet.</td></tr>{% endfor %}</tbody>
+  </table></div>
+
+  <form method="post" class="border rounded p-3 mb-3">
+    {{ element_form.hidden_tag() }}<input type="hidden" name="step" value="3"><input type="hidden" name="action" value="add_element">
+    <input type="hidden" name="ai_suggested" id="ai_suggested" value="0">
+    <div class="row g-2">
+      <div class="col-md-4">{{ element_form.element_name.label(class="form-label") }}{{ element_form.element_name(class="form-control") }}</div>
+      <div class="col-md-8">{{ element_form.element_description.label(class="form-label") }}{{ element_form.element_description(class="form-control") }}</div>
+    </div>
+    <div class="mt-2"><label class="form-label">MOST Method</label><br>
+      {% for sub in element_form.most_method %}<label class="me-3">{{ sub }} {{ sub.label.text }}</label>{% endfor %}</div>
+
+    {% for method, plist in params.items() %}
+    <div class="param-group mt-2" id="params-{{ method }}" style="display:none">
+      <div class="d-flex flex-wrap gap-2 align-items-end">
+        {% for p in plist %}
+        <div><label class="form-label small mb-0">{{ p }}</label>
+          <select name="idx_{{ p }}" class="form-select form-select-sm most-idx">
+            {% for v in index_options %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+          </select></div>
+        {% endfor %}
+        {% if method=='tool_use' %}<div><label class="form-label small mb-0">Tool TMU</label>
+          <input type="number" name="idx_tool_tmu" id="idx_tool_tmu" class="form-control form-control-sm" value="0" style="width:90px"></div>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="d-flex align-items-center gap-3 mt-3">
+      <button type="button" class="btn btn-outline-primary btn-sm" id="aiSuggest">Get AI Suggestion</button>
+      <span class="badge bg-info" id="aiConfidence" style="display:none"></span>
+      <span class="ms-auto">Live TMU: <strong id="liveTmu">0</strong></span>
+      {{ element_form.submit(class="btn btn-teal btn-sm") }}
+    </div>
+  </form>
+
+  <form method="post" class="d-flex justify-content-between">
+    {{ element_form.csrf_token }}<input type="hidden" name="step" value="3"><input type="hidden" name="action" value="next">
+    <a href="{{ url_for('work_study.new_study', step=2) if wiz.observation_method!='direct_entry' else url_for('work_study.new_study', step=1) }}" class="btn btn-outline-secondary">Previous</a>
+    <button class="btn btn-teal">Next</button>
+  </form>
+
+{% elif step==4 %}
+  <h6 class="fw-bold mb-3">Review &amp; Calculate</h6>
+  <div class="table-responsive-wrap"><table class="table table-sm"><thead><tr><th>#</th><th>Element</th><th>Method</th><th>TMU</th></tr></thead>
+    <tbody>{% for e in wiz.elements %}<tr><td>{{ loop.index }}</td><td>{{ e.element_name }}</td><td>{{ e.most_method }}</td><td>{{ e.element_tmu }}</td></tr>{% endfor %}</tbody>
+    <tfoot><tr class="fw-bold"><td colspan="3">Total TMU</td><td>{{ totals.total_tmu }}</td></tr></tfoot>
+  </table></div>
+  <div class="row g-3 my-2">
+    <div class="col-md-4"><div class="kpi-card"><div class="kpi-label">Standard Time</div><div class="kpi-value">{{ totals.raw_sec }}s</div></div></div>
+    <div class="col-md-4"><div class="kpi-card"><div class="kpi-label">Allowed Time ({{ totals.allowance }}%)</div><div class="kpi-value">{{ totals.allowed_sec }}s</div></div></div>
+    <div class="col-md-4"><div class="kpi-card"><div class="kpi-label">Allowed (mm:ss)</div><div class="kpi-value">{{ totals.formatted }}</div></div></div>
+  </div>
+  <form method="post" class="row g-2 align-items-end mb-3">
+    {{ allowance_form.hidden_tag() }}<input type="hidden" name="step" value="4"><input type="hidden" name="action" value="recalc">
+    <div class="col-auto">{{ allowance_form.allowance_percent.label(class="form-label") }}{{ allowance_form.allowance_percent(class="form-control", value=totals.allowance) }}</div>
+    <div class="col-auto">{{ allowance_form.submit(class="btn btn-outline-secondary") }}</div>
+  </form>
+  <form method="post" class="d-flex justify-content-between">
+    {{ allowance_form.csrf_token }}<input type="hidden" name="step" value="4"><input type="hidden" name="action" value="next">
+    <a href="{{ url_for('work_study.new_study', step=3) }}" class="btn btn-outline-secondary">Previous</a>
+    <button class="btn btn-teal">Next</button>
+  </form>
+
+{% elif step==5 %}
+  <h6 class="fw-bold mb-3">Confirm &amp; Save</h6>
+  <p><strong>{{ wiz.study_name }}</strong> · {{ totals.count }} elements · Total TMU {{ totals.total_tmu }} · Allowed {{ totals.allowed_sec }}s</p>
+  <form method="post" class="d-flex gap-2">
+    {{ allowance_form.csrf_token }}<input type="hidden" name="step" value="5">
+    <button class="btn btn-outline-secondary" name="action" value="draft">Save as Draft</button>
+    <button class="btn btn-teal" name="action" value="publish">Publish Study</button>
+  </form>
+{% endif %}
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/most_study.js') }}"></script>{% endblock %}

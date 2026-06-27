@@ -1,0 +1,8 @@
+{% extends 'base_public.html' %}
+{% block content %}
+<div class="container text-center py-5">
+  <h1 class="display-1 fw-bold" style="color:var(--color-navy)">500</h1>
+  <p class="lead">Something went wrong on our end. Please try again.</p>
+  <a href="{{ url_for('main.index') }}" class="btn btn-teal mt-2">Go Home</a>
+</div>
+{% endblock %}

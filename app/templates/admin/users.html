@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Users - IntelliMOST{% endblock %}
+{% block breadcrumb %}Admin / Users{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">Users</h4>
+  <a href="{{ url_for('admin.invite_user') }}" class="btn btn-teal btn-sm">Invite User</a>
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-3"><select name="role" class="form-select form-select-sm"><option value="">All roles</option>
+    {% for r in ['admin','plant_manager','industrial_engineer','qa_manager','shift_supervisor','operator','super_admin'] %}<option value="{{ r }}" {{ 'selected' if filter_role==r }}>{{ r }}</option>{% endfor %}</select></div>
+  <div class="col-md-2"><button class="btn btn-sm btn-outline-secondary">Filter</button></div>
+</form>
+<div class="kpi-card"><div class="table-responsive-wrap"><table class="table table-sm align-middle">
+  <thead><tr><th></th><th>Name</th><th>Email</th><th>Role</th><th>Last Login</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for u in users %}<tr>
+    <td><span class="rounded-circle text-white d-inline-flex align-items-center justify-content-center" style="width:32px;height:32px;background:var(--color-navy)">{{ u.initials }}</span></td>
+    <td>{{ u.full_name }}</td><td>{{ u.email }}</td>
+    <td><span class="badge role-{{ u.role }}">{{ u.role }}</span></td>
+    <td class="small">{{ u.last_login|format_datetime('%d %b %H:%M') if u.last_login else '-' }}</td>
+    <td>{% if not u.is_active %}<span class="badge bg-secondary">Inactive</span>{% elif u.is_locked %}<span class="badge bg-danger">Locked</span>{% else %}<span class="badge bg-success">Active</span>{% endif %}</td>
+    <td><a href="{{ url_for('admin.user_detail', id=u.id) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+  </tr>{% endfor %}</tbody>
+</table></div>{% include 'components/pagination.html' %}</div>
+{% endblock %}

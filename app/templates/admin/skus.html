@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}SKUs{% endblock %}
+{% block breadcrumb %}Admin / SKUs{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3"><h4 class="fw-bold mb-0">SKUs</h4>
+  <a href="{{ url_for('admin.new_sku') }}" class="btn btn-teal btn-sm">New SKU</a></div>
+<div class="kpi-card"><div class="table-responsive-wrap"><table class="table table-sm align-middle">
+  <thead><tr><th>Code</th><th>Name</th><th>UoM</th><th></th></tr></thead>
+  <tbody>{% for s in skus %}<tr><td>{{ s.sku_code }}</td><td>{{ s.sku_name }}</td><td>{{ s.unit_of_measure }}</td>
+    <td><a href="{{ url_for('admin.edit_sku', id=s.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a></td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base_public.html' %}
+{% block content %}
+<div class="container py-5">
+  <h1 class="fw-bold mb-4" style="color:var(--color-navy)">Features</h1>
+  <div class="row g-4">
+    {% set rows = [
+      ('Real-time production monitoring','Shift output vs target, live OEE, line and machine status tiles.'),
+      ('Digital MOST work studies','Guided 5-step wizard, General/Controlled/Tool Use methods, version control.'),
+      ('AI index suggestions','Gemini-powered method and index recommendations with confidence scores.'),
+      ('OEE analytics','Availability, performance, quality decomposition and trend charts.'),
+      ('Downtime tracking','Hierarchical reason codes, Pareto, MTTR, mobile-first logging.'),
+      ('Rejection management','Defect Pareto, rejection rate trends, QC check points.'),
+      ('CAPA lifecycle','Open to closed workflow, evidence, approvals, PDF export.'),
+      ('5-Why RCA workspace','Structured root cause analysis with similar-event suggestions.'),
+      ('Alerting engine','Threshold rules, escalation, email notifications, every 5 minutes.'),
+      ('Improvement opportunities','Auto-generated, ranked, accept/defer/dismiss workflow.') ] %}
+    {% for t,d in rows %}
+    <div class="col-md-6"><div class="kpi-card h-100"><h5 class="fw-bold">{{ t }}</h5><p class="small text-muted mb-0">{{ d }}</p></div></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumb %}Admin / Machines{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">{{ title }}</h4>
+<div class="kpi-card" style="max-width:620px"><form method="post">
+  {{ form.hidden_tag() }}
+  <div class="row g-3">
+    <div class="col-md-6">{{ form.machine_name.label(class="form-label") }}{{ form.machine_name(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.machine_code.label(class="form-label") }}{{ form.machine_code(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.machine_type.label(class="form-label") }}{{ form.machine_type(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.line_id.label(class="form-label") }}{{ form.line_id(class="form-select") }}</div>
+    <div class="col-md-6">{{ form.manufacturer.label(class="form-label") }}{{ form.manufacturer(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.model_number.label(class="form-label") }}{{ form.model_number(class="form-control") }}</div>
+    <div class="col-md-6">{{ form.installation_date.label(class="form-label") }}{{ form.installation_date(class="form-control") }}</div>
+  </div>{{ form.submit(class="btn btn-teal mt-3") }}
+</form></div>
+{% endblock %}

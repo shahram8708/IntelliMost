@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file: .env
+    volumes:
+      - ./uploads:/app/uploads
+      - ./intellimost_dev.db:/app/intellimost_dev.db
+    depends_on: []

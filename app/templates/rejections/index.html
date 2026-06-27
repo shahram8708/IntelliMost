@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Rejections - IntelliMOST{% endblock %}
+{% block breadcrumb %}Rejections{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">Rejections</h4>
+  <a href="{{ url_for('rejections.log_rejection') }}" class="btn btn-teal btn-sm">Log Rejection</a>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-lg-6"><div class="kpi-card"><h6 class="fw-bold mb-2">Rejection Trend (30d)</h6>
+    <div style="height:240px"><canvas id="trend" data-chart="trendData" data-type="line"></canvas></div>
+    <script type="application/json" id="trendData">{"labels":{{ trend.labels|tojson }},"datasets":[{"label":"Units Rejected","data":{{ trend.data|tojson }},"borderColor":"#ea580c","backgroundColor":"rgba(234,88,12,.1)","tension":.3,"fill":true}]}</script>
+  </div></div>
+  <div class="col-lg-6"><div class="kpi-card"><h6 class="fw-bold mb-2">Defect Pareto</h6>
+    <div style="height:240px"><canvas id="pareto" data-chart="paretoData" data-type="bar"></canvas></div>
+    <script type="application/json" id="paretoData">{"labels":{{ pareto.labels|tojson }},"datasets":[{"label":"Qty","data":{{ pareto.data|tojson }},"backgroundColor":"#DC2626"}]}</script>
+  </div></div>
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-3"><select name="sku_id" class="form-select form-select-sm"><option value="">All SKUs</option>
+    {% for s in skus %}<option value="{{ s.id }}" {{ 'selected' if filters.sku_id==s.id }}>{{ s.sku_name }}</option>{% endfor %}</select></div>
+  <div class="col-md-3"><input name="defect_type" class="form-control form-control-sm" placeholder="Defect type" value="{{ filters.defect_type }}"></div>
+  <div class="col-md-2"><button class="btn btn-sm btn-outline-secondary">Filter</button></div>
+</form>
+<div class="kpi-card">
+  <div class="table-responsive-wrap"><table class="table table-sm align-middle">
+    <thead><tr><th>Defect</th><th>Qty</th><th>SKU</th><th>Cause</th><th>Batch</th><th>When</th></tr></thead>
+    <tbody>{% for r in rejections %}<tr>
+      <td>{{ r.defect_type }}</td><td>{{ r.quantity_rejected }}</td><td>{{ r.sku.sku_name if r.sku else '-' }}</td>
+      <td>{{ r.probable_cause or '-' }}</td><td>{{ r.batch_reference or '-' }}</td><td>{{ r.created_at|format_datetime('%d %b %H:%M') }}</td>
+    </tr>{% else %}<tr><td colspan="6" class="text-muted">No rejections.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% include 'components/pagination.html' %}
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>{% endblock %}

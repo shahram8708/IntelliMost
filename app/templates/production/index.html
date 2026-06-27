@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Production - IntelliMOST{% endblock %}
+{% block breadcrumb %}Production{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">Production Lines</h4>
+  <a href="{{ url_for('production.output_log') }}" class="btn btn-teal btn-sm">Log Output</a>
+</div>
+<div class="row g-3">
+  {% for d in data %}
+  <div class="col-md-6 col-lg-4">
+    <div class="line-tile {{ d.status }}">
+      <div class="d-flex justify-content-between align-items-start">
+        <strong>{{ d.line.line_name }}</strong>
+        <span class="badge badge-{{ d.status }}">{{ d.status|capitalize }}</span>
+      </div>
+      {% if d.shift %}
+      <div class="small text-muted my-2">Shift {{ d.shift.shift_label }}</div>
+      <div class="progress mb-2" style="height:8px"><div class="progress-bar" style="width:{{ (d.shift.actual_units / d.shift.target_units * 100) if d.shift.target_units else 0 }}%;background:var(--color-teal)"></div></div>
+      <div class="small">{{ d.shift.actual_units }} / {{ d.shift.target_units }} units · {{ d.active_dt }} active downtime</div>
+      {% else %}<p class="small text-muted my-2">No active shift.</p>{% endif %}
+      <a href="{{ url_for('production.line_detail', id=d.line.id) }}" class="btn btn-outline-secondary btn-sm mt-2">View Details</a>
+    </div>
+  </div>
+  {% else %}<div class="col-12"><div class="empty-state"><i class="fa-solid fa-industry fa-2x mb-2"></i><p>No production lines configured.</p></div></div>{% endfor %}
+</div>
+{% endblock %}

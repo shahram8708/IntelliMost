@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}CAPA - IntelliMOST{% endblock %}
+{% block breadcrumb %}CAPA{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">CAPA Records</h4>
+  <a href="{{ url_for('capa.new_capa') }}" class="btn btn-teal btn-sm">New CAPA</a>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-4"><div class="kpi-card"><div class="kpi-label">&lt; 7 days</div><div class="kpi-value">{{ aging.lt7 }}</div></div></div>
+  <div class="col-4"><div class="kpi-card"><div class="kpi-label">7–30 days</div><div class="kpi-value">{{ aging.d7_30 }}</div></div></div>
+  <div class="col-4"><div class="kpi-card"><div class="kpi-label">&gt; 30 days overdue</div><div class="kpi-value text-danger">{{ aging.gt30 }}</div></div></div>
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-3"><select name="status" class="form-select form-select-sm"><option value="">All statuses</option>
+    {% for s in ['open','in_progress','pending_review','closed','overdue'] %}<option value="{{ s }}" {{ 'selected' if filters.status==s }}>{{ s }}</option>{% endfor %}</select></div>
+  <div class="col-md-3"><select name="severity" class="form-select form-select-sm"><option value="">All severity</option>
+    {% for s in ['critical','major','minor'] %}<option value="{{ s }}" {{ 'selected' if filters.severity==s }}>{{ s }}</option>{% endfor %}</select></div>
+  <div class="col-md-2"><button class="btn btn-sm btn-outline-secondary">Filter</button></div>
+</form>
+<div class="kpi-card">
+  <div class="table-responsive-wrap"><table class="table table-sm align-middle">
+    <thead><tr><th>Number</th><th>Title</th><th>Severity</th><th>Status</th><th>Owner</th><th>Due</th></tr></thead>
+    <tbody>{% for c in capas %}<tr>
+      <td><a href="{{ url_for('capa.detail', id=c.id) }}">{{ c.capa_number }}</a></td>
+      <td>{{ c.title }}</td><td><span class="badge badge-{{ c.severity }}">{{ c.severity }}</span></td>
+      <td><span class="badge bg-secondary">{{ c.status }}</span></td><td>{{ c.owner.full_name }}</td>
+      <td class="{{ 'text-danger fw-bold' if c.is_overdue }}">{{ c.due_date.strftime('%d %b') }}</td>
+    </tr>{% else %}<tr><td colspan="6" class="text-muted">No CAPA records.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% include 'components/pagination.html' %}
+</div>
+{% endblock %}

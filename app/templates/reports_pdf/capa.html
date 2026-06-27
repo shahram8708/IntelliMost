@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{font-family:Arial,sans-serif;font-size:12px;color:#222}h1{color:#1B3A6B;font-size:20px}
+.box{border:1px solid #ccc;padding:10px;margin-top:10px}
+</style></head><body>
+<h1>CAPA Report</h1>
+{% if capa %}
+<p><strong>{{ capa.capa_number }}</strong> - {{ capa.title }}</p>
+<p>Severity: {{ capa.severity }} · Status: {{ capa.status }} · Due: {{ capa.due_date }}</p>
+<p>Owner: {{ capa.owner.full_name }} · Raised by: {{ capa.raised_by.full_name }}</p>
+<div class="box"><strong>Deviation:</strong><br>{{ capa.deviation_description }}</div>
+<div class="box"><strong>Immediate Action:</strong><br>{{ capa.immediate_action or '-' }}</div>
+<div class="box"><strong>Root Cause:</strong><br>{{ capa.root_cause_summary or '-' }}</div>
+<div class="box"><strong>Corrective Action:</strong><br>{{ capa.corrective_action or '-' }}</div>
+<div class="box"><strong>Preventive Action:</strong><br>{{ capa.preventive_action or '-' }}</div>
+{% if capa.rca %}<div class="box"><strong>5-Why:</strong><br>
+1. {{ capa.rca.why_1 or '' }}<br>2. {{ capa.rca.why_2 or '' }}<br>3. {{ capa.rca.why_3 or '' }}<br>
+4. {{ capa.rca.why_4 or '' }}<br>5. {{ capa.rca.why_5 or '' }}<br><strong>Root cause:</strong> {{ capa.rca.root_cause_statement or '' }} ({{ capa.rca.root_cause_category or '' }})</div>{% endif %}
+{% else %}<p>CAPA not found.</p>{% endif %}
+<p style="margin-top:24px;color:#888">Generated {{ now }} by IntelliMOST</p>
+</body></html>
